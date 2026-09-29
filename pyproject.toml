@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clinic-assist"
+version = "0.1.0"
+description = "Diş kliniği için Türkçe RAG + araç kullanan yapay zeka asistanı"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=0.40",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "chromadb>=0.5",
+    "sentence-transformers>=3.0",
+    "pydantic>=2.7",
+    "python-dotenv>=1.0",
+    "tzdata>=2024.1",  # Windows'ta zoneinfo (Europe/Istanbul) için gerekli
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6", "httpx>=0.27"]
+
+[tool.setuptools.packages.find]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
