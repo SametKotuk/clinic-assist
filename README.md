@@ -2,7 +2,7 @@
 
 Diş kliniği için Türkçe yapay zeka asistanı: dokümanlardan kaynak göstererek yanıt verir, müsait saatleri sorgular, randevu oluşturur ve bilmediği konuda uydurmak yerine yönlendirir.
 
-> Durum: Tamamlanıyor (Gün 2/5)
+> Durum: Tamamlanıyor (Asama 4/6)
 
 ## Özellikle
 - **Agentic RAG:** Google Gemini SDK (`gemini-3.5-flash-lite`) ve Tool Use entegrasyonu.
