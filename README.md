@@ -20,12 +20,14 @@ python -m venv .venv
 .venv\Scripts\activate        
 pip install -e ".[dev]"
 
-GEMINI_API_KEY=AQ.Ab8RN6K0wfXvFdXrRhVpb5WQERkrNsYxtpCqFjq7hLF_FpdT-Q
+GEMINI_API_KEY=sizin_api_keyiniz
 python -m uvicorn src.api.main:app --reload --port 8000
 
 Yol haritası
 
-- [x] Gün 1-2: Kapsam, mimari, örnek dokümanlar ve veri hattı
-- [] Gün 3: RAG çekirdeği ve bağlam yönetimi
-- [] Gün 4: Araç kullanımı (Tool Use) ve güvenlik
-- [] Gün 5: API, web arayüzü, değerlendirme ve proje teslimi
+- [x] Asama 1: Kapsam, mimari, örnek dokümanlar ve veri hattı (Vektör DB yerine Tool tabanlı doğrudan dosya okuma mimarisine geçiş)
+- [x] Asama 2: RAG çekirdeği (XML etiketli bağlam yönetimi ve hafıza)
+- [x] Asama 3: Araç kullanımı (Tool Use) ve güvenlik (Gemini 3.8-flash entegrasyonu)
+- [x] Asama 4: Hata yönetimi (Graceful degradation) ve değerlendirme
+- [x] Asama 5: API (FastAPI) ve kullanıcı dostu web arayüzü
+- [x] Asama 6: Teslim (Güncel README, mimari diyagram ve GitHub deposu
