@@ -35,4 +35,4 @@ python -m uvicorn src.api.main:app --reload --port 8000
 
 ##  Ekran Görüntüsü
 
-![ClinicAssist Arayüzü](docs/images/Uygulama_ici_görüntü.png)
+![ClinicAssist Arayüzü](docs/images/clinic-assist-ui.png)
