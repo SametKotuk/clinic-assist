@@ -14,11 +14,21 @@ Diş kliniği için Türkçe yapay zeka asistanı: dokümanlardan kaynak göster
 ## Kurulum
 
 ```bash
+# 1. Sanal ortam oluşturma
 python -m venv .venv
 
-# macOS/Linux: source .venv/bin/activate
-.venv\Scripts\activate        
+# 2. Sanal ortamı aktifleştirme (Windows için)
+.venv\Scripts\activate
+
+# (macOS/Linux için ise şu komut kullanılır:)
+# source .venv/bin/activate
+
+# 3. Gerekli kütüphaneleri yükleme
 pip install -r requirements.txt
 
-GEMINI_API_KEY=sizin_api_keyiniz
+# 4. .env dosyası oluşturma
+# Proje ana dizininde bir .env dosyası oluşturun ve anahtarınızı ekleyin:
+# GEMINI_API_KEY=sizin_api_keyiniz
+
+# 5. Sunucuyu başlatma
 python -m uvicorn src.api.main:app --reload --port 8000
