@@ -32,7 +32,3 @@ pip install -r requirements.txt
 
 # 5. Sunucuyu başlatma
 python -m uvicorn src.api.main:app --reload --port 8000
-
-##  Ekran Görüntüsü
-
-![image URL](https://github.com/SametKotuk/clinic-assist/blob/main/screenshot.jpg?raw=true)
