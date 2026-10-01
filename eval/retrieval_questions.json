@@ -1,0 +1,21 @@
+[
+  {"id": "r01", "q": "İmplant kaç para?", "expected": ["01_fiyat_listesi.md", "02_tedavi_rehberi.md"], "type": "conflict"},
+  {"id": "r02", "q": "Randevumu ne zaman iptal edebilirim?", "expected": ["03_sss.md", "05_iptal_politikasi.md"], "type": "conflict"},
+  {"id": "r03", "q": "Cumartesi günü kaça kadar açıksınız?", "expected": ["03_sss.md", "04_calisma_saatleri.md"], "type": "conflict"},
+  {"id": "r04", "q": "Kanal tedavisi kaç seans sürer?", "expected": ["02_tedavi_rehberi.md"], "type": "answerable"},
+  {"id": "r05", "q": "Diş çekiminden sonra neye dikkat etmeliyim?", "expected": ["02_tedavi_rehberi.md"], "type": "answerable"},
+  {"id": "r06", "q": "Taksitle ödeme yapabilir miyim?", "expected": ["01_fiyat_listesi.md", "03_sss.md"], "type": "answerable"},
+  {"id": "r07", "q": "5 yaşındaki çocuğumu getirebilir miyim?", "expected": ["02_tedavi_rehberi.md"], "type": "answerable"},
+  {"id": "r08", "q": "İmplantı hangi doktor yapıyor?", "expected": ["04_calisma_saatleri.md"], "type": "answerable"},
+  {"id": "r09", "q": "Randevuma gelmezsem ne olur?", "expected": ["05_iptal_politikasi.md"], "type": "answerable"},
+  {"id": "r10", "q": "Öğle arasında randevu alabilir miyim?", "expected": ["04_calisma_saatleri.md"], "type": "answerable"},
+  {"id": "r11", "q": "Beyazlatmadan sonra kahve içebilir miyim?", "expected": ["02_tedavi_rehberi.md"], "type": "answerable"},
+  {"id": "r12", "q": "Kliniğiniz nerede, nasıl gelirim?", "expected": ["03_sss.md"], "type": "answerable"},
+  {"id": "r13", "q": "Şeffaf plak tedavisi kaç ay sürüyor?", "expected": ["02_tedavi_rehberi.md"], "type": "answerable"},
+  {"id": "r14", "q": "Ilk muayenede neler yapılıyor?", "expected": ["03_sss.md"], "type": "answerable"},
+  {"id": "r15", "q": "dis cekimi ne kadar", "expected": ["01_fiyat_listesi.md"], "type": "answerable"},
+  {"id": "g01", "q": "Özel sağlık sigortam geçerli mi?", "expected": [], "type": "gap"},
+  {"id": "g02", "q": "Kliniğin otoparkı var mı?", "expected": [], "type": "gap"},
+  {"id": "g03", "q": "Pazar günü acil durumda kimi arayabilirim?", "expected": [], "type": "gap"},
+  {"id": "g04", "q": "SGK diş tedavisini karşılıyor mu?", "expected": [], "type": "gap"}
+]

@@ -1,33 +1,24 @@
-"""Chunk'ları embedding'e çevirip Chroma'ya yazar."""
+"""Metinleri embedding'e çevirip JSON dosyasına (Pure Python) kaydeder."""
 from __future__ import annotations
 
-import chromadb
+import json
+from pathlib import Path
 
 from src.config import settings
-from src.ingest.chunking import Chunk
+from src.indexer import Chunk
 from src.ingest.embedder import Embedder
 
-
-def get_collection(reset: bool = False, name: str | None = None):
-    name = name or settings.collection
-    client = chromadb.PersistentClient(path=str(settings.chroma_path))
-    if reset:
-        try:
-            client.delete_collection(name)
-        except Exception:
-            pass  # koleksiyon yoksa sorun değil
-    return client.get_or_create_collection(name, metadata={"hnsw:space": "cosine"})
-
+DB_FILE = Path(settings.chroma_path) / "local_index.json"
 
 def build_index(chunks: list[Chunk], embedder: Embedder, reset: bool = True,
                 collection: str | None = None, use_header: bool = True) -> int:
-    """İndeksi baştan kurar (idempotent). Yazılan chunk sayısını döndürür."""
-    col = get_collection(reset=reset, name=collection)
+    DB_FILE.parent.mkdir(parents=True, exist_ok=True)
     embeddings = embedder.embed_passages([c.contextual_text if use_header else c.text for c in chunks])
-    col.add(
-        ids=[c.id for c in chunks],
-        documents=[c.text for c in chunks],
-        embeddings=embeddings,
-        metadatas=[{"source": c.source, "title": c.title, "section": c.section, "index": c.index} for c in chunks],
-    )
+    data = []
+    for c, emb in zip(chunks, embeddings):
+        data.append({
+            "id": c.id, "text": c.text, "embedding": emb,
+            "source": c.source, "title": c.title, "section": c.section, "index": c.index
+        })
+    DB_FILE.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     return len(chunks)

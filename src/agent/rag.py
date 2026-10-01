@@ -1,4 +1,4 @@
-"""RAG çekirdeği: ara -> bağlamı hazırla -> Claude -> kaynaklı yanıt."""
+"""RAG çekirdeği: ara -> bağlamı hazırla -> Gemini -> kaynaklı yanıt."""
 from __future__ import annotations
 
 import re
@@ -15,16 +15,15 @@ Retriever = Callable[[str, int], list[Hit]]
 @dataclass
 class RagAnswer:
     text: str
-    retrieved: list[Hit] = field(default_factory=list)   # aranan tüm parçalar
-    cited: list[Hit] = field(default_factory=list)       # yanıtta [n] ile anılanlar
-    refused_by_threshold: bool = False                    # skor eşiği yüzünden LLM çağrılmadı
+    retrieved: list[Hit] = field(default_factory=list)
+    cited: list[Hit] = field(default_factory=list)
+    refused_by_threshold: bool = False
     input_tokens: int = 0
     output_tokens: int = 0
 
 
 def _default_retriever(query: str, k: int) -> list[Hit]:
-    from src.retrieval.search import search  # ağır bağımlılıkları geç yükle
-
+    from src.retrieval.search import search
     return search(query, k)
 
 
@@ -39,17 +38,17 @@ class RagAssistant:
     ):
         self._client = client
         self.retriever = retriever or _default_retriever
-        self.model = model or settings.claude_model
+        # Varsayılan modeli Gemini yapıyoruz
+        self.model = model or "gemini-3.5-flash-lite"
         self.top_k = top_k if top_k is not None else settings.top_k
         self.min_score = min_score if min_score is not None else settings.min_score
-        self.history: list[dict] = []   # yalnızca (soru, yanıt) çiftleri; bağlam saklanmaz
+        self.history: list[dict] = []
 
     @property
     def client(self):
         if self._client is None:
-            import anthropic
-
-            self._client = anthropic.Anthropic()  # ANTHROPIC_API_KEY ortamdan okunur
+            from google import genai
+            self._client = genai.Client()  # GEMINI_API_KEY ortamdan okunur
         return self._client
 
     def reset(self) -> None:
@@ -59,26 +58,45 @@ class RagAssistant:
         question = question.strip()
         hits = self.retriever(question, self.top_k)
 
-        # Eşik kapısı: en iyi sonuç bile zayıfsa LLM'e hiç gitme.
         if self.min_score > 0 and (not hits or max(h.score for h in hits) < self.min_score):
             return RagAnswer(NO_INFO_MESSAGE, retrieved=hits, refused_by_threshold=True)
 
-        messages = self.history + [{"role": "user", "content": build_user_message(question, hits)}]
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=1000,
-            system=SYSTEM_PROMPT,
-            messages=messages,
+        from google.genai import types
+
+        # Gemini formatına uygun mesaj geçmişini hazırla
+        formatted_contents = []
+        for msg in self.history:
+            formatted_contents.append(
+                types.Content(role=msg["role"], parts=[types.Part.from_text(text=msg["content"])])
+            )
+        
+        # Yeni soruyu bağlam ile birlikte ekle
+        formatted_contents.append(
+            types.Content(role="user", parts=[types.Part.from_text(text=build_user_message(question, hits))])
         )
-        text = "".join(b.text for b in response.content if getattr(b, "type", "") == "text").strip()
+
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=formatted_contents,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                max_output_tokens=1000,
+                temperature=0.0
+            )
+        )
+        
+        text = response.text.strip() if response.text else ""
 
         self.history.append({"role": "user", "content": question})
-        self.history.append({"role": "assistant", "content": text})
-        usage = getattr(response, "usage", None)
+        self.history.append({"role": "model", "content": text}) # Gemini'de asistan rolü 'model' olarak geçer
+
+        in_tokens = response.usage_metadata.prompt_token_count if getattr(response, "usage_metadata", None) else 0
+        out_tokens = response.usage_metadata.candidates_token_count if getattr(response, "usage_metadata", None) else 0
+
         return RagAnswer(
             text, retrieved=hits, cited=self._cited(text, hits),
-            input_tokens=getattr(usage, "input_tokens", 0) or 0,
-            output_tokens=getattr(usage, "output_tokens", 0) or 0,
+            input_tokens=in_tokens,
+            output_tokens=out_tokens,
         )
 
     @staticmethod

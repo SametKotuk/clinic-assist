@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinicAssist Diş Kliniği - Akıllı Asistan</title>
+  <style>
+    :root {
+      --primary: #0077b6;
+      --primary-dark: #023e8a;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --bot-msg: #f1f5f9;
+      --badge-bg: #e0f2fe;
+      --badge-text: #0369a1;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; height: 100vh; }
+    
+    .chat-container {
+      width: 100%;
+      max-width: 800px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--card-bg);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+    }
+
+    .brand { display: flex; align-items: center; gap: 0.75rem; }
+    .brand-icon { font-size: 1.5rem; background: var(--badge-bg); padding: 0.4rem; border-radius: 8px; }
+    .brand h1 { font-size: 1.1rem; color: var(--primary-dark); }
+    .brand p { font-size: 0.8rem; color: var(--text-muted); }
+
+    .reset-btn {
+      background: none;
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .reset-btn:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+
+    .messages {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .msg { max-width: 80%; line-height: 1.5; font-size: 0.95rem; border-radius: 12px; padding: 0.85rem 1.1rem; }
+    .msg.user { align-self: flex-end; background-color: var(--primary); color: white; border-bottom-right-radius: 2px; }
+    .msg.bot { align-self: flex-start; background-color: var(--bot-msg); color: var(--text); border-bottom-left-radius: 2px; }
+
+    .citations {
+      margin-top: 0.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+
+    .suggestions {
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .chip {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.75rem;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .chip:hover { background: var(--badge-bg); color: var(--badge-text); }
+
+    .input-bar {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      background: #ffffff;
+    }
+
+    .input-bar input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.95rem;
+    }
+    .input-bar input:focus { border-color: var(--primary); }
+
+    .send-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .send-btn:hover { background: var(--primary-dark); }
+    .send-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🦷</div>
+      <div>
+        <h1>ClinicAssist Diş Kliniği</h1>
+        <p>Akıllı Randevu ve Bilgi Asistanı</p>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="resetChat()">Sıfırla</button>
+  </header>
+
+  <div class="messages" id="messageBox">
+    <div class="msg bot">
+      Merhabalar! ClinicAssist Diş Kliniği asistanıyım. Tedavilerimiz, fiyatlarımız ve randevu oluşturma hakkında size nasıl yardımcı olabilirim?
+    </div>
+  </div>
+
+  <div class="suggestions">
+    <button class="chip" onclick="quickSend('Diş taşı temizliği ne kadar?')">Diş taşı temizliği ne kadar?</button>
+    <button class="chip" onclick="quickSend('Yarın kanal tedavisi için randevu almak istiyorum.')">Kanal randevusu al</button>
+    <button class="chip" onclick="quickSend('Randevu iptal politikanız nedir?')">İptal politikası</button>
+  </div>
+
+  <form class="input-bar" onsubmit="handleSend(event)">
+    <input type="text" id="userInput" placeholder="Sorunuzu veya randevu talebinizi yazın..." autocomplete="off" />
+    <button type="submit" id="sendBtn" class="send-btn">Gönder</button>
+  </form>
+</div>
+
+<script>
+  let sessionId = localStorage.getItem("clinic_session_id") || "";
+
+  async function handleSend(e) {
+    e.preventDefault();
+    const input = document.getElementById("userInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = "";
+    appendMessage(text, "user");
+
+    const sendBtn = document.getElementById("sendBtn");
+    sendBtn.disabled = true;
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, session_id: sessionId })
+      });
+      const data = await res.json();
+      
+      if (data.session_id) {
+        sessionId = data.session_id;
+        localStorage.setItem("clinic_session_id", sessionId);
+      }
+
+      appendMessage(data.text, "bot", data.cited_sources);
+    } catch (err) {
+      appendMessage("Bağlantı hatası oluştu. Lütfen API servisinin çalıştığından emin olun.", "bot");
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+
+  function appendMessage(text, role, citations = []) {
+    const box = document.getElementById("messageBox");
+    const div = document.createElement("div");
+    div.className = `msg ${role}`;
+    div.innerText = text;
+
+    if (citations && citations.length > 0) {
+      const citDiv = document.createElement("div");
+      citDiv.className = "citations";
+      citations.forEach(c => {
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.innerText = `Kaynak: ${c.source} (${c.section || 'Genel'})`;
+        citDiv.appendChild(badge);
+      });
+      div.appendChild(citDiv);
+    }
+
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function quickSend(txt) {
+    document.getElementById("userInput").value = txt;
+    document.querySelector(".input-bar").dispatchEvent(new Event("submit"));
+  }
+
+  async function resetChat() {
+    if (sessionId) {
+      await fetch("/api/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId })
+      });
+    }
+    localStorage.removeItem("clinic_session_id");
+    sessionId = "";
+    document.getElementById("messageBox").innerHTML = `
+      <div class="msg bot">Konuşma sıfırlandı. Size nasıl yardımcı olabilirim?</div>
+    `;
+  }
+</script>
+</body>
+</html>

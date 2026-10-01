@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import uuid
 import traceback
+import time
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Tuple
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,12 +28,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-sessions: Dict[str, ClinicAgent] = {}
+# Ajanları son erişim zamanlarıyla birlikte tutuyoruz
+sessions: Dict[str, Tuple[ClinicAgent, float]] = {}
+SESSION_TIMEOUT = 3600  # 1 saat (saniye)
+
+def cleanup_sessions():
+    """Süresi dolmuş oturumları bellekten temizler."""
+    current_time = time.time()
+    expired = [
+        sid for sid, (_, last_access) in sessions.items() 
+        if current_time - last_access > SESSION_TIMEOUT
+    ]
+    for sid in expired:
+        del sessions[sid]
 
 def get_agent(session_id: str) -> ClinicAgent:
+    cleanup_sessions()
     if session_id not in sessions:
-        sessions[session_id] = ClinicAgent()
-    return sessions[session_id]
+        sessions[session_id] = (ClinicAgent(), time.time())
+    else:
+        agent, _ = sessions[session_id]
+        sessions[session_id] = (agent, time.time())
+    return sessions[session_id][0]
 
 class ChatRequest(BaseModel):
     message: str
@@ -74,11 +91,9 @@ async def chat_endpoint(payload: ChatRequest):
             steps=reply.steps,
         )
     except Exception as exc:
-        # Hata yakalandığında terminale yazdır...
         error_trace = traceback.format_exc()
         print(error_trace) 
         
-        # ...VE DOĞRUDAN SOHBET EKRANINA MESAJ OLARAK GÖNDER!
         return ChatResponse(
             text=f"⚠️ SİSTEM HATASI:\n\n{error_trace}",
             session_id=session_id,
@@ -90,7 +105,7 @@ async def chat_endpoint(payload: ChatRequest):
 @app.post("/api/reset")
 async def reset_endpoint(payload: ResetRequest):
     if payload.session_id in sessions:
-        sessions[payload.session_id].reset()
+        sessions[payload.session_id][0].reset()
     return {"status": "ok"}
 
 if WEB_DIR.exists():

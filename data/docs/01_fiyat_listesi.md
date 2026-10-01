@@ -1,4 +1,4 @@
-# Yıldız Diş Kliniği - Fiyat Listesi (2026)
+# ClintAsisst Diş Kliniği - Fiyat Listesi (2026)
 
 Fiyatlar Türk Lirası (TL) cinsindendir ve muayene sonrası netleşir.
 
