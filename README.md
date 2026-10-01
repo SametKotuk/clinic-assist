@@ -32,3 +32,7 @@ pip install -r requirements.txt
 
 # 5. Sunucuyu başlatma
 python -m uvicorn src.api.main:app --reload --port 8000
+
+##  Ekran Görüntüsü
+
+![ClinicAssist Arayüzü](docs/images/Uygulama_ici_görüntü.png)
